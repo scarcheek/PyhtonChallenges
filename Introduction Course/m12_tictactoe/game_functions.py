@@ -1,9 +1,14 @@
-from queue import Empty
+from copy import copy, deepcopy
 
 
 EMPTY = '-'
 PLAYER_X = 'X'
 PLAYER_O = 'O'
+
+PLAYER_1 = PLAYER_X
+PLAYER_2 = PLAYER_O if PLAYER_1 == PLAYER_X else PLAYER_X
+TIE = 'tie'
+
 
 N_FIELDS = 9
 
@@ -16,12 +21,15 @@ def print_board(board):
     """
     
     # If you want dynamic board sizes tictactoe breaks anyways 
+    displayBoard = deepcopy(board)
+    for index in range(0, len(displayBoard)):
+        if (displayBoard[index] == EMPTY): displayBoard[index] = index
     i = 0
     print('=============')
     while i < N_FIELDS:
-      print(f'| {board[i]} | {board[i+1]} | {board[i+2]} |')
+      print(f'| {displayBoard[i]} | {displayBoard[i+1]} | {displayBoard[i+2]} |')
       i+=3
-    print('=============')
+    print('=============\n')
 
 
 def perform_move(player, position, board):
@@ -47,6 +55,10 @@ def board_full(board):
     return not(EMPTY in board)
 
 
+def iterate_board(board, player, indexes: list[int, int, int]):
+    return all(x == player for x in [board[indexes[0]], board[indexes[1]], board[indexes[2]]])
+
+
 def has_won(board, player):
     """
     Check if there are three equal pieces for this player in some row, column or one of the two diagonals
@@ -55,25 +67,18 @@ def has_won(board, player):
     :param player: symbol of player that should be checked
     :return: True if three pieces in a row
     """
-    consecutive = 0
+    # Rows
+    if(iterate_board(board, player, [0,1,2]) or 
+        iterate_board(board, player, [3,4,5]) or
+        iterate_board(board, player, [6,7,8])): return True
+    # Columns
+    if(iterate_board(board, player, [0,3,6]) or 
+        iterate_board(board, player, [1,4,7]) or
+        iterate_board(board, player, [2,5,8])): return True
 
-    for i in range(0,3):
-        consecutive = 0
-        for o in range(1,4):
-            if (board[(i * o) -1] is player): consecutive += 1
-        if consecutive == 3: return True
-
-    for i in range(0,3):
-        consecutive = 0
-        for o in range(0,9,3):
-            if (board[i + o] is player): consecutive += 1
-        if consecutive == 3: return True
-
-    # You could also use the for-in stategy here but i got too lazy and made my life a bit easier :)
-    # Should also be more optimized as it is a build in function from python
-    # Did the rows/columns with for-in just to test if i am still able to do it the "basic" way
-    if (all(x == player for x in [board[0], board[4], board[8]]) or 
-        all(x == player for x in [board[2], board[4], board[6]])): return True
+    # Diagonals
+    if (iterate_board(board, player, [0,4,8]) or 
+        iterate_board(board, player, [2,4,6])): return True
 
     return False
 
@@ -123,12 +128,26 @@ def winner(board):
     :param board: list of length N_FIELDS with all board elements representing the current game state
     :return: (no return value)
     """
-    if has_won(board, PLAYER_X):
-        print('Player X won!')
-    elif has_won(board, PLAYER_O):
-        print('Player O won!')
-    elif board_full(board):
+    winner = checkWinner(board)
+    if winner == PLAYER_X:
+        print(f'Player {PLAYER_X} won!')
+    elif winner == PLAYER_O:
+        print(f'Player {PLAYER_O} won!')
+    elif winner == TIE:
         print('Tie!')
+
+def checkWinner(board):
+    """
+    Calculates the outcome of the game and returns it.  Either PLAYER_X or PLAYER_O has won or it is a tie.
+    :param board: list of length N_FIELDS with all board elements representing the current game state
+    :return: ['X', 'O', 'tie']
+    """
+    if has_won(board, PLAYER_X):
+        return PLAYER_X
+    elif has_won(board, PLAYER_O):
+        return PLAYER_O
+    elif board_full(board):
+        return TIE
 
 # I didnt see this when programming the valid_moves function. Oopsies
 def get_valid_moves(board):
