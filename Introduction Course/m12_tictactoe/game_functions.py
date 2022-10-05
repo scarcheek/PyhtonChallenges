@@ -55,7 +55,7 @@ def board_full(board):
     return not(EMPTY in board)
 
 
-def iterate_board(board, player, indexes: list[int, int, int]):
+def iterate_board(board, player, indexes: list):
     return all(x == player for x in [board[indexes[0]], board[indexes[1]], board[indexes[2]]])
 
 
