@@ -24,11 +24,12 @@ def my_bot(board, current_player):
         # Maximizing False it tries the possible moves of the other player
         score = minimax(board, 0, False)
         board[currMove] = EMPTY
-        if(score > best_score):
+        if (score > best_score):
             best_score = max(score, best_score)
             move = currMove
-    
+
     return move
+
 
 def minimax(board, depth, isMaximizing):
     """
@@ -45,20 +46,22 @@ def minimax(board, depth, isMaximizing):
     result = checkWinner(board)
     if result is not None:
         return scores[result]
-    
+
     valid_moves = get_valid_moves(board)
-    
+
     best_score = -INFINITE if isMaximizing else INFINITE
 
     for currMove in valid_moves:
         # You could also shallow copy the board object but it would be less performant and MM is already quite performance intensive so I chose this solution
         board[currMove] = PLAYER_1 if isMaximizing else PLAYER_2
         # Maximizing False it tries the possible moves of the other player
-        score = minimax(board, depth + 1, not(isMaximizing))
+        score = minimax(board, depth + 1, not (isMaximizing))
         board[currMove] = EMPTY
-        best_score = max(score, best_score) if isMaximizing else min(score, best_score)
+        best_score = max(score, best_score) if isMaximizing else min(
+            score, best_score)
     return best_score
-    
+
+
 def random_bot(board, current_player):
     """
     Bot that selects a random valid move
